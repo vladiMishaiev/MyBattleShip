@@ -21,10 +21,17 @@ public class Game {
 	private Board computerBoard;
 	private int playerShipsLeft;
 	private int computerShipsLeft;
-	private int score;
+	private int moves;
+
+	public boolean isPlayerTurn() {
+		return playerTurn;
+	}
+
+	private boolean playerTurn;
 	public Game(String difficulty)
 	{
-		this.score=0;
+		playerTurn=true;
+		this.moves =0;
 		switch(difficulty)
 		{
 			case "Beginner": {
@@ -66,7 +73,9 @@ public class Game {
 		if (computerBoard.hit(row,col)) {
 			if (computerBoard.getTile(row, col).getShip() != null && computerBoard.getTile(row, col).getShip().isDestroyed())
 				computerShipsLeft--;
-			score++;
+			moves++;
+			if (computerBoard.getTile(row, col).isEmptySlot())
+				playerTurn=false;
 			return true;
 		}
 		return false;
@@ -74,16 +83,21 @@ public class Game {
 	public boolean computerPlay(){
 		int col;
 		int row;
-
-		do {
-			col = ThreadLocalRandom.current().nextInt(0, playerBoard.getCols());
-			row = ThreadLocalRandom.current().nextInt(0, playerBoard.getRows());
-			if (playerBoard.hit(row, col)) {
-				if (playerBoard.getTile(row, col).getShip() != null && playerBoard.getTile(row, col).getShip().isDestroyed())
-					playerShipsLeft--;
-				return true;
-			}
-		}while(!playerBoard.hit(row,col));
+		//do {
+			do {
+				col = ThreadLocalRandom.current().nextInt(0, playerBoard.getCols());
+				row = ThreadLocalRandom.current().nextInt(0, playerBoard.getRows());
+				if (playerBoard.hit(row, col)) {
+					if (playerBoard.getTile(row, col).getShip() != null && playerBoard.getTile(row, col).getShip().isDestroyed())
+						playerShipsLeft--;
+					if (playerBoard.getTile(row, col).isEmptySlot())
+						playerTurn=true;
+					return true;
+				}
+			} while (!playerBoard.hit(row, col));
+		//}while(!playerBoard.getTile(row, col).isEmptySlot());
+		if (playerBoard.getTile(row, col).isEmptySlot())
+			playerTurn=true;
 		return false;
 	}
 
@@ -93,11 +107,17 @@ public class Game {
 	 * @return 1 - player won
 	 * @return -1 - computer won
 	 */
+	public int getTotalShipsTiles(boolean playerBoard){
+		if (playerBoard){
+			return this.playerBoard.getNumOfShipsTiles();
+		}
+		return this.computerBoard.getNumOfShipsTiles();
+	}
 	public int gameStatus(){
-		if (playerShipsLeft==0)
-			return -1;
 		if (computerShipsLeft==0)
 			return 1;
+		if (playerShipsLeft==0)
+			return -1;
 		return 0;
 	}
 	public int getPlayerShipsLeft() {
@@ -116,11 +136,19 @@ public class Game {
 		this.computerShipsLeft = computerShipsLeft;
 	}
 
-	public int getScore() {
-		return score;
+	public int getMoves() {
+		return moves;
 	}
 
-	public void setScore(int score) {
-		this.score = score;
+	public double getScore(boolean forPlayer) {
+		if (moves==0)
+			return 0;
+		if (forPlayer)
+			return playerBoard.getNumOfShipsTiles()/(double)moves*100.0;
+		return computerBoard.getNumOfShipsTiles()/(double)moves*100.0;
+	}
+
+	public void setMoves(int score) {
+		this.moves = score;
 	}
 }

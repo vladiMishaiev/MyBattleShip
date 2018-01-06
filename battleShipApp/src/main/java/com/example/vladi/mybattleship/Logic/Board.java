@@ -33,7 +33,13 @@ public class Board {
         generateShips();
         placeShips();
     }
-
+    public int getNumOfShipsTiles(){
+        int sum=0;
+        for (int i=0;i<numOfShips;i++){
+            sum+=ships[i].getSize();
+        }
+        return sum;
+    }
     public void initBoard(){
         for (int i=0;i<rows;i++){
             for (int j=0;j<cols;j++){

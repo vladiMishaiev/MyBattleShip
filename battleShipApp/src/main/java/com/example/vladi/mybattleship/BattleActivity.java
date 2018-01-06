@@ -3,6 +3,7 @@ package com.example.vladi.mybattleship;
  * Created by vladi on 12/30/2017.
  */
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -81,10 +82,11 @@ public class BattleActivity extends AppCompatActivity {
         mGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                if (mGrid.getAdapter()==computerAdapter) {
+                if (mGame.isPlayerTurn() && mGrid.getAdapter()==computerAdapter) {
                     int row = position / mGame.getComputerBoard().getCols();
                     int col = position % mGame.getComputerBoard().getCols();
                     if (mGame.playerPlay(row, col)) {
+                        Log.d(TAG, "onItemClick: player played");
                         ((TileAdapter) mGrid.getAdapter()).notifyDataSetChanged();
                         //if ship destroyed show toast msg
                         if (mGame.getComputerBoard().getTile(row,col).getShip()!= null &&
@@ -94,22 +96,27 @@ public class BattleActivity extends AppCompatActivity {
                         //update status view
                         updateStatus();
                         //check for winner
-                        if (mGame.gameStatus() == 1)
+                        if (mGame.gameStatus() != 0)
                             endGame();
-                        //computer play
-                        mGame.computerPlay();
-                        //notify player adapter after computer play
-                        playerAdapter.notifyDataSetChanged();
-                        //if ship destroyed show toast msg
-                        if (mGame.getPlayerBoard().getTile(row,col).getShip()!=null &&
-                                mGame.getPlayerBoard().getTile(row,col).getShip().isDestroyed()) {
-                           setToast("Player ship destroyed");
+                        Log.d(TAG, "onItemClick: entering computer play");
+                        while (!mGame.isPlayerTurn()) {
+                        //if (!mGame.isPlayerTurn()){
+                            //computer play
+                            mGame.computerPlay();
+                            Log.e(TAG, "computer played");
+                            //notify player adapter after computer play
+                            playerAdapter.notifyDataSetChanged();
+                            //if ship destroyed show toast msg
+                            if (mGame.getPlayerBoard().getTile(row, col).getShip() != null &&
+                                    mGame.getPlayerBoard().getTile(row, col).getShip().isDestroyed()) {
+                                setToast("Player ship destroyed");
+                            }
+                            //update status view
+                            updateStatus();
+                            //check for winner
+                            if (mGame.gameStatus() != 0)
+                                endGame();
                         }
-                        //update status view
-                        updateStatus();
-                        //check for winner
-                        if (mGame.gameStatus() == 1)
-                            endGame();
                     }
                 }
             }
@@ -120,6 +127,15 @@ public class BattleActivity extends AppCompatActivity {
         //pass winner?
         //score
         //block back key
+        Intent intent = new Intent(BattleActivity.this,FinishGameActivity.class);
+        Bundle params = new Bundle();
+        if (mGame.gameStatus()==1)
+            params.putDouble("score",mGame.getScore(true));
+        else
+            params.putDouble("score",0.0);
+        intent.putExtras(params);
+        startActivity(intent);
+        finish();
     }
     private void setToast(String msg){
         toast = Toast.makeText(getApplicationContext(), msg,
@@ -129,7 +145,7 @@ public class BattleActivity extends AppCompatActivity {
     }
     private void updateStatus (){
         String statusMsg = "Player ships: "+ mGame.getPlayerShipsLeft() +
-                " - Enemy ships: "+mGame.getComputerShipsLeft()+"    Moves: " +mGame.getScore();
+                " - Enemy ships: "+mGame.getComputerShipsLeft()+"    Moves: " +mGame.getMoves();
         statusText.setText(statusMsg);
     }
 }
