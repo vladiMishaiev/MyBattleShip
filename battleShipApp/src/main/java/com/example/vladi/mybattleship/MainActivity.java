@@ -11,12 +11,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
+import com.example.vladi.mybattleship.Logic.Record;
+
 public class MainActivity extends AppCompatActivity {
     private final static String DIFFICULTY = "difficulty";
     private final static String FILE = "appInfo";
     private static final String TAG = "MainActivity";
     private Spinner mSpinner;
     private Button btnNewGame;
+    private Button recordsBtn;
     private String mDifficulty;
     private ArrayAdapter<CharSequence> adapter;
     @Override
@@ -54,6 +57,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     private void setRecordsBtn(){
-
+        recordsBtn =(Button)findViewById(R.id.recordsBtn);
+        recordsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,RecordsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }

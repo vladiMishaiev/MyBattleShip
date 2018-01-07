@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -55,8 +56,10 @@ public class FinishGameActivity extends AppCompatActivity {
     private void setSubmitBox(){
         //set submit box visability
         LinearLayout recordBox = (LinearLayout)findViewById(R.id.submitRecordBox);
-        recordBox.setVisibility(LinearLayout.GONE);
-        recordBox.setVisibility(LinearLayout.VISIBLE);
+        if (score!=0)
+            recordBox.setVisibility(LinearLayout.VISIBLE);
+        else
+            recordBox.setVisibility(LinearLayout.GONE);
 
 
         submitScore = (Button)findViewById(R.id.submitScoreBtn);
@@ -66,6 +69,7 @@ public class FinishGameActivity extends AppCompatActivity {
     private void getScore(){
         Bundle params = getIntent().getExtras();
         score = params.getDouble("score");
+        Log.d(TAG, "getScore: "+score);
     }
 
     private void setImage(){
