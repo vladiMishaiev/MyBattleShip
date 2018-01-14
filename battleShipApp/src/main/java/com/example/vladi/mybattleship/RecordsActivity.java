@@ -35,6 +35,7 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
     }
 
     public ArrayList<Record> getRecords() {
+        //initRecords();
         return records;
     }
 
@@ -42,6 +43,13 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
         records = new ArrayList<>();
         records.add(new Record("vladi",250.0));
         records.add(new Record("vadim",230.0));
+        records.add(new Record("katya",220.0));
+        records.add(new Record("vlai",250.0));
+        records.add(new Record("vadm",230.0));
+        records.add(new Record("ktya",220.0));
+        records.add(new Record("vadi",250.0));
+        records.add(new Record("vdim",230.0));
+        records.add(new Record("kya",220.0));
         records.add(new Record("katya",220.0));
     }
     private void enableMapFragmentDisplay(){

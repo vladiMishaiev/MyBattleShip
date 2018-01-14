@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.example.vladi.mybattleship.Logic.Record;
 
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 public class RecordsListFragment extends Fragment {
     private OnRecordSelectedFromListListener mListener;
     private ArrayList<Record> records;
-
+    private ListView recordsView;
     public interface OnRecordSelectedFromListListener {
         void onFragmentInteraction(Record record);
         //maybe position
@@ -33,8 +34,21 @@ public class RecordsListFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_records_list, container, false);
+        /*records = ((RecordsActivity)getActivity()).getRecords();
+        recordsView = (ListView)view.findViewById(R.id.recordsList);
+        RecordListAdapter adapter = new RecordListAdapter(getActivity(), R.layout.adapter_record_view_layout, records);
+        recordsView.setAdapter(adapter);*/
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState){
+       super.onActivityCreated(savedInstanceState);
         records = ((RecordsActivity)getActivity()).getRecords();
-        return inflater.inflate(R.layout.fragment_records_list, container, false);
+        recordsView = (ListView)getView().findViewById(R.id.recordsList);
+        RecordListAdapter adapter = new RecordListAdapter(getActivity(), R.layout.adapter_record_view_layout, records);
+        recordsView.setAdapter(adapter);
     }
 
     @Override
