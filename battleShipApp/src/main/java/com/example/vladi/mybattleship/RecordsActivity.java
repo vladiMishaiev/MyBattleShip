@@ -2,6 +2,7 @@ package com.example.vladi.mybattleship;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -11,21 +12,25 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.vladi.mybattleship.DAL.RecordsDatabase;
 import com.example.vladi.mybattleship.Logic.Record;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RecordsActivity extends AppCompatActivity implements RecordsListFragment.OnRecordSelectedFromListListener{
     private static final String TAG = "RecordsActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
 
-    private ArrayList<Record> records;
+    private List<Record> records;
+    private RecordsDatabase recordsDB;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_records);
+        recordsDB = RecordsDatabase.getInstance(getApplicationContext());
         initRecords();
         if(isServicesOK()){
            enableMapFragmentDisplay();
@@ -34,23 +39,29 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
         }
     }
 
-    public ArrayList<Record> getRecords() {
-        //initRecords();
+    public List<Record> getRecords() {
+        records = (List<Record>) recordsDB.recordsDao().getAllRecords();
+
         return records;
     }
 
     private void initRecords(){
         records = new ArrayList<>();
-        records.add(new Record("vladi",250.0));
-        records.add(new Record("vadim",230.0));
-        records.add(new Record("katya",220.0));
-        records.add(new Record("vlai",250.0));
-        records.add(new Record("vadm",230.0));
-        records.add(new Record("ktya",220.0));
-        records.add(new Record("vadi",250.0));
-        records.add(new Record("vdim",230.0));
-        records.add(new Record("kya",220.0));
-        records.add(new Record("katya",220.0));
+//        new AsyncTask<Void, Void, Void>() {
+//            @Override
+//            protected Void doInBackground(Void... voids) {
+//                recordsDB.recordsDao().createRecord(new Record("vladi", 250.0));
+//                recordsDB.recordsDao().createRecord(new Record("vadim", 230.0));
+//                recordsDB.recordsDao().createRecord(new Record("katya", 220.0));
+//                recordsDB.recordsDao().createRecord(new Record("vlai", 250.0));
+//                recordsDB.recordsDao().createRecord(new Record("vadm", 230.0));
+//                recordsDB.recordsDao().createRecord(new Record("ktya", 220.0));
+//                recordsDB.recordsDao().createRecord(new Record("vadi", 250.0));
+//                recordsDB.recordsDao().createRecord(new Record("vdim", 230.0));
+//                recordsDB.recordsDao().createRecord(new Record("kya", 220.0));
+//                return null;
+//            }
+//        }.execute();
     }
     private void enableMapFragmentDisplay(){
         FragmentManager fm = getSupportFragmentManager();

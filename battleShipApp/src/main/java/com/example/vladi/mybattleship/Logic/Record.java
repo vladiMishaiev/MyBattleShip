@@ -12,17 +12,17 @@ import android.support.annotation.NonNull;
 @Entity(tableName = "records")
 public class Record {
     @PrimaryKey
-    @ColumnInfo(name= "username")
+    @ColumnInfo(name= "_name")
     @NonNull
     private String name;
 
-    @ColumnInfo(name = "score")
+    @ColumnInfo(name = "_score")
     private Double score;
 
-    @ColumnInfo(name = "location")
+    @ColumnInfo(name = "_location")
     private String location;
 
-    @ColumnInfo(name = "difficulty")
+    @ColumnInfo(name = "_difficulty")
     private String difficulty;
 
     public Record(String name, Double score) {

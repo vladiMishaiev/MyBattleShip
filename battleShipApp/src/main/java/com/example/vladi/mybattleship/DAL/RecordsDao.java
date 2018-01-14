@@ -20,7 +20,7 @@ public interface RecordsDao {
     @Insert
     public void createRecord (Record record);
 
-    @Query("SELECT * FROM records WHERE username LIKE :name AND difficulty LIKE :difficulty")
+    @Query("SELECT * FROM records WHERE _name LIKE :name AND _difficulty LIKE :difficulty")
     public Record retrieveRecord (String name, String difficulty);
 
     @Update
@@ -32,10 +32,10 @@ public interface RecordsDao {
     @Query("SELECT * FROM records")
     public List<Record> getAllRecords ();
 
-    @Query("SELECT MIN(score) FROM records WHERE difficulty LIKE :difficulty")
+    @Query("SELECT MIN(_score) FROM records WHERE _difficulty LIKE :difficulty")
     public double getMinScoreByDifficulty(String difficulty);
 
-    @Query("SELECT MAX(score) FROM records WHERE difficulty LIKE :difficulty")
+    @Query("SELECT MAX(_score) FROM records WHERE _difficulty LIKE :difficulty")
     public double getMaxScoreByDifficulty(String difficulty);
 
 }
