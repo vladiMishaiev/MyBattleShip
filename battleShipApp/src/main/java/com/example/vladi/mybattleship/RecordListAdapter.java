@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.example.vladi.mybattleship.Logic.Record;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by vladi on 1/13/2018.
@@ -28,7 +29,7 @@ public class RecordListAdapter extends ArrayAdapter<Record> {
      * @param resource
      * @param objects
      */
-    public RecordListAdapter(Context context, int resource, ArrayList objects) {
+    public RecordListAdapter(Context context, int resource, List objects) {
         super(context, resource, objects);
         mContext = context;
         mResource = resource;

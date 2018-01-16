@@ -11,13 +11,15 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.example.vladi.mybattleship.DAL.RecordsDatabase;
 import com.example.vladi.mybattleship.Logic.Record;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RecordsListFragment extends Fragment {
     private OnRecordSelectedFromListListener mListener;
-    private ArrayList<Record> records;
+    private List<Record> records;
     private ListView recordsView;
     public interface OnRecordSelectedFromListListener {
         void onRecordSelectionTable(int recordPos);
