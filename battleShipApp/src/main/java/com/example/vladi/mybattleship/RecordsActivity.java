@@ -90,7 +90,7 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
     }
 
     @Override
-    public void onFragmentInteraction(Record record) {
+    public void onRecordSelectionTable(int recordPos) {
 
     }
 }

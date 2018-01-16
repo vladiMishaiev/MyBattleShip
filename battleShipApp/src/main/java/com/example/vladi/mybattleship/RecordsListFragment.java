@@ -7,6 +7,8 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.vladi.mybattleship.Logic.Record;
@@ -18,8 +20,7 @@ public class RecordsListFragment extends Fragment {
     private ArrayList<Record> records;
     private ListView recordsView;
     public interface OnRecordSelectedFromListListener {
-        void onFragmentInteraction(Record record);
-        //maybe position
+        void onRecordSelectionTable(int recordPos);
     }
 
     public RecordsListFragment() {
@@ -47,8 +48,17 @@ public class RecordsListFragment extends Fragment {
        super.onActivityCreated(savedInstanceState);
         records = ((RecordsActivity)getActivity()).getRecords();
         recordsView = (ListView)getView().findViewById(R.id.recordsList);
+        recordsView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+        recordsView.setSelector(android.R.color.holo_blue_light);
         RecordListAdapter adapter = new RecordListAdapter(getActivity(), R.layout.adapter_record_view_layout, records);
         recordsView.setAdapter(adapter);
+        recordsView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mListener.onRecordSelectionTable(position);
+                //recordsView.setItemChecked(position, true);
+            }
+        });
     }
 
     @Override
