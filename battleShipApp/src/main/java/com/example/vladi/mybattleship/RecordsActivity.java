@@ -1,8 +1,6 @@
 package com.example.vladi.mybattleship;
 
 import android.app.Dialog;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +10,13 @@ import com.example.vladi.mybattleship.DAL.RecordsDatabase;
 import com.example.vladi.mybattleship.Logic.Record;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,61 +26,93 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
     private static final String TAG = "RecordsActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
 
+    private GoogleMap gMap;
     public static List<Record> records;
     private RecordsDatabase recordsDB;
+    private List<Marker> markers;
+
+
+    /* ==========================================================================================================================
+    *   Activity Initialization.
+    *   1. Initiates Records list.
+    *   2. Initiates Map Fragment.
+    *  ========================================================================================================================== */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_records);
+
         initRecords();
         if(isServicesOK()){
-           enableMapFragmentDisplay();
-        }else{
-           disableMapFragmentDisplay();
+           initMap();
         }
-
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment mapFrag = fm.findFragmentById(R.id.map);
-
     }
 
+    /* ==========================================================================================================================
+    *   Record list getter.
+    *  ========================================================================================================================== */
     public List<Record> getRecords() {
-
-        try {
-            records = (List<Record>) recordsDB.recordsDao().getAllRecords();
-        } catch(Exception e){}
-
         return records;
     }
 
+    /* ==========================================================================================================================
+    *   Record list initialization.
+    *   1. Get instance of DB.
+    *   2. Get all records from DB instance.
+    *   3. Sort descending.
+    *  ========================================================================================================================== */
     private void initRecords(){
         records = new ArrayList<>();
-        recordsDB = RecordsDatabase.getInstance(getApplicationContext());
 
-        records.add(new Record("player1",100.0,31.98623872,34.81816292));
-        records.add(new Record("player2",150.0,31.98624872,34.81816292));
-        records.add(new Record("player3",90.0,31.98623672,34.81816292));
-        records.add(new Record("player4",300.0,31.98622872,34.81816292));
+        // Get instance of DB and input test players.
+        try {
+            recordsDB = RecordsDatabase.getInstance(getApplicationContext());
+            recordsDB.recordsDao().createRecord(new Record("player1",100.0,31.94623000,34.81816292));
+            recordsDB.recordsDao().createRecord(new Record("player2",150.0,31.96624111,34.81816292));
+            recordsDB.recordsDao().createRecord(new Record("player3",90.0,31.98623222,34.81816292));
+            recordsDB.recordsDao().createRecord(new Record("player4",300.0,31.92622333,34.81816292));
 
+        } catch(Exception e) {}
+
+        // Fetch record list from DB
+        try {
+            records = recordsDB.recordsDao().getAllRecords();
+        } catch(Exception e) {}
+
+        // Sort.
         Collections.sort(records);
     }
-    private void enableMapFragmentDisplay(){
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment mapFrag = fm.findFragmentById(R.id.map);
-        fm.beginTransaction()
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                .show(mapFrag)
-                .commit();
+
+    /* ==========================================================================================================================
+    *   Map initialization
+    *   1. Initiate MapFragment from XML.
+    *   2. Initiate Markers of records.
+    *   3. Set onMarkerClickListener to move and zoom camera on marker selection.
+    *  ========================================================================================================================== */
+    private void initMap(){
+        android.app.FragmentManager fm = getFragmentManager();
+        MapFragment mapFrag = (MapFragment) fm.findFragmentById(R.id.map);
+        mapFrag.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                gMap = googleMap;
+                initMarkers();
+                gMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker) {
+                        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 14f));
+                        return false;
+                    }
+                });
+            }
+        });
     }
-    private void disableMapFragmentDisplay(){
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment mapFrag = fm.findFragmentById(R.id.map);
-        fm.beginTransaction()
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                .hide(mapFrag)
-                .commit();
-    }
-    public boolean isServicesOK(){
+
+    /* ==========================================================================================================================
+    *   Google Map Validation.
+    *   Validates whether Google map service is available.
+    *  ========================================================================================================================== */
+    private boolean isServicesOK(){
         Log.d(TAG, "isServicesOK: checking google services version");
 
         int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(RecordsActivity.this);
@@ -96,8 +133,33 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
         return false;
     }
 
+
+    /* ==========================================================================================================================
+    *   Record Selection Event Handler.
+    *   Handles selection of record from record list in record list fragment.
+    *  ========================================================================================================================== */
     @Override
     public void onRecordSelectionTable(int recordPos) {
+        Record selectedRecord = records.get(recordPos);
+        LatLng loc = new LatLng(selectedRecord.getLat(), selectedRecord.getLang());
+        for(Marker m : markers) {
+            if(m.getPosition().equals(loc))
+                m.showInfoWindow();
+            else
+                m.hideInfoWindow();
+        }
+        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 14f));
 
+    }
+
+    /* ==========================================================================================================================
+    *   Marker Initialization
+    *   Adds markers to the map by iterating record list.
+    *  ========================================================================================================================== */
+    private void initMarkers() {
+        markers = new ArrayList<>();
+        for(Record r : records) {
+            markers.add(gMap.addMarker(new MarkerOptions().position(new LatLng(r.getLat(), r.getLang())).visible(true).title("Name: " + r.getName()).snippet("Score: " + r.getScore())));
+        }
     }
 }

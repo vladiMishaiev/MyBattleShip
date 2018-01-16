@@ -1,8 +1,11 @@
 package com.example.vladi.mybattleship;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +18,7 @@ import android.widget.Toast;
 
 import com.example.vladi.mybattleship.DAL.RecordsDatabase;
 import com.example.vladi.mybattleship.Logic.Record;
+import com.google.android.gms.maps.model.LatLng;
 
 public class FinishGameActivity extends AppCompatActivity {
     private static final String TAG = "FinishGameActivity";
@@ -74,14 +78,21 @@ public class FinishGameActivity extends AppCompatActivity {
             public void onClick(View view) {
                 try {
                     RecordsDatabase db = RecordsDatabase.getInstance(getApplicationContext());
-                    db.recordsDao().createRecord(new Record(nameInput.getText().toString(), score));
+                    Location loc = getLastBestLocation();
+                    double lat = -33.868820;
+                    double lng = 151.209296;
+                    if(loc != null) {
+                        lat = loc.getLatitude();
+                        lng = loc.getLongitude();
+                    }
+                    db.recordsDao().createRecord(new Record(nameInput.getText().toString(), score, lat, lng));
                     nameInput.setEnabled(false);
                     submitScore.setEnabled(false);
                     Toast toastSavedSuccess = Toast.makeText(getApplicationContext(), "Record Saved!", Toast.LENGTH_LONG);
                     toastSavedSuccess.show();
                 } catch(Exception e) {
                     Log.d("DB", e.toString());
-                    Toast toastFailedSave = Toast.makeText(getApplicationContext(), "Name Already Exist!", Toast.LENGTH_LONG);
+                    Toast toastFailedSave = Toast.makeText(getApplicationContext(), "Save failed!", Toast.LENGTH_LONG);
                     toastFailedSave.show();
                 }
             }
@@ -99,5 +110,34 @@ public class FinishGameActivity extends AppCompatActivity {
             outcomeImg.setImageResource(R.drawable.winner);
         else
             outcomeImg.setImageResource(R.drawable.looser);
+    }
+
+    @SuppressLint("MissingPermission")
+    private Location getLastBestLocation() {
+        LocationManager mLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        Location locationGPS;
+        Location locationNet;
+        try
+        {
+            locationGPS = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            locationNet = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        long GPSLocationTime = 0;
+        if (null != locationGPS) { GPSLocationTime = locationGPS.getTime(); }
+
+        long NetLocationTime = 0;
+
+        if (null != locationNet) {
+            NetLocationTime = locationNet.getTime();
+        }
+
+        if ( 0 < GPSLocationTime - NetLocationTime ) {
+            return locationGPS;
+        }
+        else {
+            return locationNet;
+        }
+        } catch(Exception e) {Log.d("GPS", e.getMessage());}
+
+        return null;
     }
 }

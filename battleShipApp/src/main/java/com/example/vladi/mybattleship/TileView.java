@@ -19,12 +19,14 @@ public class TileView extends LinearLayout {
         super(context);
 
         this.setOrientation(VERTICAL);
-        image = new ImageView(context);
+        text = new TextView(context);
+       // image = new ImageView(context);
         LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        image.setLayoutParams(layoutParams);
-        image.setTextAlignment(TEXT_ALIGNMENT_CENTER);
+        text.setLayoutParams(layoutParams);
+        text.setTextAlignment(TEXT_ALIGNMENT_CENTER);
+        text.setTextSize(10f);
         setBackgroundResource(R.drawable.border);
-        this.addView(image);
+        this.addView(text);
 
     }
 }

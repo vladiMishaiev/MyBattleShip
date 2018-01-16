@@ -108,9 +108,9 @@ public class Record implements Comparable<Record>{
     @Override
     public int compareTo(@NonNull Record o) {
         if (this.score > o.score)
-            return 1;
-        if (this.score < o.score)
             return -1;
+        if (this.score < o.score)
+            return 1;
         return 0;
     }
 }

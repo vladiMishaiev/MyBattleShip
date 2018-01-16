@@ -21,6 +21,7 @@ public class RecordsListFragment extends Fragment {
     private OnRecordSelectedFromListListener mListener;
     private List<Record> records;
     private ListView recordsView;
+
     public interface OnRecordSelectedFromListListener {
         void onRecordSelectionTable(int recordPos);
     }
