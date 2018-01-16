@@ -25,7 +25,7 @@
         xmlns:map="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:name="com.example.vladi.mybattleship.MyMapsFragment"
         android:layout_width="375dp"
         android:layout_height="344dp"
         android:layout_marginBottom="8dp"
@@ -33,6 +33,5 @@
         android:layout_marginStart="8dp"
         map:layout_constraintBottom_toBottomOf="parent"
         map:layout_constraintEnd_toEndOf="parent"
-        map:layout_constraintStart_toStartOf="parent"
-        tools:context="com.example.vladi.mybattleship.MapsActivity" />
+        map:layout_constraintStart_toStartOf="parent" />
 </android.support.constraint.ConstraintLayout>

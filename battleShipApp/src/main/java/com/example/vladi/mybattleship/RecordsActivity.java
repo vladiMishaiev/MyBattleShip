@@ -18,13 +18,14 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class RecordsActivity extends AppCompatActivity implements RecordsListFragment.OnRecordSelectedFromListListener{
     private static final String TAG = "RecordsActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
 
-    private List<Record> records;
+    public static List<Record> records;
     private RecordsDatabase recordsDB;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,16 +38,27 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
         }else{
            disableMapFragmentDisplay();
         }
+
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment mapFrag = fm.findFragmentById(R.id.map);
+
     }
 
     public List<Record> getRecords() {
-        records = (List<Record>) recordsDB.recordsDao().getAllRecords();
+        //records = (List<Record>) recordsDB.recordsDao().getAllRecords();
 
         return records;
     }
 
     private void initRecords(){
         records = new ArrayList<>();
+
+        records.add(new Record("player1",100.0,31.98623872,34.81816292));
+        records.add(new Record("player2",150.0,31.98624872,34.81816292));
+        records.add(new Record("player3",90.0,31.98623672,34.81816292));
+        records.add(new Record("player4",300.0,31.98622872,34.81816292));
+
+        Collections.sort(records);
 //        new AsyncTask<Void, Void, Void>() {
 //            @Override
 //            protected Void doInBackground(Void... voids) {
