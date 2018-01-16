@@ -11,6 +11,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import com.example.vladi.mybattleship.DAL.RecordsDatabase;
+import com.example.vladi.mybattleship.Logic.Record;
 
 public class FinishGameActivity extends AppCompatActivity {
     private static final String TAG = "FinishGameActivity";
@@ -65,6 +69,23 @@ public class FinishGameActivity extends AppCompatActivity {
         submitScore = (Button)findViewById(R.id.submitScoreBtn);
         nameInput = (EditText)findViewById(R.id.nameInput);
         //get box input
+        submitScore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    RecordsDatabase db = RecordsDatabase.getInstance(getApplicationContext());
+                    db.recordsDao().createRecord(new Record(nameInput.getText().toString(), score));
+                    nameInput.setEnabled(false);
+                    submitScore.setEnabled(false);
+                    Toast toastSavedSuccess = Toast.makeText(getApplicationContext(), "Record Saved!", Toast.LENGTH_LONG);
+                    toastSavedSuccess.show();
+                } catch(Exception e) {
+                    Log.d("DB", e.toString());
+                    Toast toastFailedSave = Toast.makeText(getApplicationContext(), "Name Already Exist!", Toast.LENGTH_LONG);
+                    toastFailedSave.show();
+                }
+            }
+        });
     }
     private void getScore(){
         Bundle params = getIntent().getExtras();
