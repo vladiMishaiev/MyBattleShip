@@ -5,11 +5,39 @@ package com.example.vladi.mybattleship.Logic;
  */
 
 public class Ship {
-
+    public enum ShipDirection {UP,DOWN,LEFT,RIGHT};
     private int id;
     private int size;
     private int hitsTaken;
     private boolean isDestroyed;
+    private int startPosX;
+    private int startPosY;
+
+    public int getStartPosX() {
+        return startPosX;
+    }
+
+    public void setStartPosX(int startPosX) {
+        this.startPosX = startPosX;
+    }
+
+    public int getStartPosY() {
+        return startPosY;
+    }
+
+    public void setStartPosY(int startPosY) {
+        this.startPosY = startPosY;
+    }
+
+    public ShipDirection getShipDirection() {
+        return shipDirection;
+    }
+
+    public void setShipDirection(ShipDirection shipDirection) {
+        this.shipDirection = shipDirection;
+    }
+
+    private ShipDirection shipDirection;
 
     public Ship (int id, int size){
         this.id = id;

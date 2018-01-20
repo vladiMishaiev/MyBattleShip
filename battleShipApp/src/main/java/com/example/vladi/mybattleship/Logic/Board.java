@@ -117,6 +117,9 @@ public class Board {
                 for (int i = col; i <= col + size; i++) {
                     gameBoard[row][i].setShip(ship);
                 }
+                gameBoard[row][col].getShip().setStartPosX(row);
+                gameBoard[row][col].getShip().setStartPosX(col);
+                gameBoard[row][col].getShip().setShipDirection(Ship.ShipDirection.RIGHT);
                 return true;
             }
 
@@ -131,6 +134,9 @@ public class Board {
                 for (int i = col; i >= col - size; i--) {
                     gameBoard[row][i].setShip(ship);
                 }
+                gameBoard[row][col].getShip().setStartPosX(row);
+                gameBoard[row][col].getShip().setStartPosX(col);
+                gameBoard[row][col].getShip().setShipDirection(Ship.ShipDirection.LEFT);
                 return true;
             }
             return false;
@@ -148,6 +154,9 @@ public class Board {
                 for (int i = row; i <= row + size; i++) {
                     gameBoard[i][col].setShip(ship);
                 }
+                gameBoard[row][col].getShip().setStartPosX(row);
+                gameBoard[row][col].getShip().setStartPosX(col);
+                gameBoard[row][col].getShip().setShipDirection(Ship.ShipDirection.DOWN);
                 return true;
             }
             if (row-size >= 0) {
@@ -161,6 +170,9 @@ public class Board {
                 for (int i = row; i >= row - size; i--) {
                     gameBoard[i][col].setShip(ship);
                 }
+                gameBoard[row][col].getShip().setStartPosX(row);
+                gameBoard[row][col].getShip().setStartPosX(col);
+                gameBoard[row][col].getShip().setShipDirection(Ship.ShipDirection.UP);
                 return true;
             }
             return false;

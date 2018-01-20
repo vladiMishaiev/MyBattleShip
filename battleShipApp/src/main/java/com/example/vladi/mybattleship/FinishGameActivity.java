@@ -78,8 +78,10 @@ public class FinishGameActivity extends AppCompatActivity {
 
     private void setSubmitBox() {
         //set submit box visability
-        LinearLayout recordBox = (LinearLayout) findViewById(R.id.submitRecordBox);
-        if (score != 0)
+
+        LinearLayout recordBox = (LinearLayout)findViewById(R.id.submitRecordBox);
+        //add load lowest record from db and check
+        if (score!=0)
             recordBox.setVisibility(LinearLayout.VISIBLE);
         else
             recordBox.setVisibility(LinearLayout.GONE);
