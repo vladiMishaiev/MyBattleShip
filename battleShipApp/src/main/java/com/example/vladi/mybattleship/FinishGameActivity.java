@@ -25,6 +25,7 @@ import com.example.vladi.mybattleship.Logic.Record;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 public class FinishGameActivity extends AppCompatActivity {
@@ -51,6 +52,9 @@ public class FinishGameActivity extends AppCompatActivity {
         setSubmitBox();
     }
 
+    /* ==========================================================================================================================
+    *   Replay button settings.
+    *  ========================================================================================================================== */
     private void setReplayBtn() {
         replayBtn = (Button) findViewById(R.id.replayBtn);
         replayBtn.setOnClickListener(new View.OnClickListener() {
@@ -64,6 +68,9 @@ public class FinishGameActivity extends AppCompatActivity {
 
     }
 
+    /* ==========================================================================================================================
+    *   Home button settings.
+    *  ========================================================================================================================== */
     private void setHomeBtn() {
         homeBtn = (Button) findViewById(R.id.homeBtn);
         homeBtn.setOnClickListener(new View.OnClickListener() {
@@ -76,9 +83,11 @@ public class FinishGameActivity extends AppCompatActivity {
         });
     }
 
+    /* ==========================================================================================================================
+    *   Submit button settings.
+    *  ========================================================================================================================== */
     private void setSubmitBox() {
         //set submit box visability
-
         LinearLayout recordBox = (LinearLayout)findViewById(R.id.submitRecordBox);
         //add load lowest record from db and check
         if (score!=0)
@@ -94,30 +103,39 @@ public class FinishGameActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
+                /* 1. Check GPS access permission.
+                *  2. If GPS permission is already given, get location and save to db.
+                *  3. Else if GPS permission is not given, ask for permission.
+                *  3.1 The callback function takes care of fetching location and saving to db. */
                 try {
-
-                    if (ActivityCompat.checkSelfPermission(FinishGameActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                            && ActivityCompat.checkSelfPermission(FinishGameActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-                        // Request permission
-                        ActivityCompat.requestPermissions(FinishGameActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-                        Log.d("LOCATION", "Request location permission");
-                    } else {
-                        Log.d("LOCATION", "Permission exist");
+                    if (checkGpsPermission()) {
+                        Log.d(TAG, "GPS permission is already given.");
+                        // In case permission is granted, get last known location, and save to database.
                         getLocationAndSaveToDatabase();
+                    } else {
+                        // In case permission is not granted, ask for permission.
+                        // The onRequestPermissionsResult callback, will fetch location and save to database.
+                        // Request GPS access permission.
+                        Log.d(TAG, "GPS permission wasn't found, asking for permission.");
+                        ActivityCompat.requestPermissions(FinishGameActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
                     }
-
-
                 } catch(Exception e) {}
             }
         });
     }
+
+    /* ==========================================================================================================================
+    *   Get Score.
+    *  ========================================================================================================================== */
     private void getScore(){
         Bundle params = getIntent().getExtras();
         score = params.getDouble("score");
         Log.d(TAG, "getScore: "+score);
     }
 
+    /* ==========================================================================================================================
+    *   Set Image.
+    *  ========================================================================================================================== */
     private void setImage(){
         outcomeImg = (ImageView)findViewById(R.id.outcomeImg);
         if (score!=0)
@@ -126,46 +144,90 @@ public class FinishGameActivity extends AppCompatActivity {
             outcomeImg.setImageResource(R.drawable.looser);
     }
 
-    @SuppressLint("MissingPermission")
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
-            Log.d("LOCATION", "Request Response");
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getLocationAndSaveToDatabase();
-            }
-        }
-    }
+
+
+    /* ==========================================================================================================================
+    *   Save records to the database.
+    *  ========================================================================================================================== */
     private void saveScoreToDatabase() {
         try {
+            // Get database hook
             RecordsDatabase db = RecordsDatabase.getInstance(getApplicationContext());
+
+            // Default location
             double lat = -33.868820;
             double lng = 151.209296;
+
+            // If GPS location fetching succeeded.
             if(loc != null) {
                 lat = loc.getLatitude();
                 lng = loc.getLongitude();
             }
+
+            // Save new record to database,
             db.recordsDao().createRecord(new Record(nameInput.getText().toString(), score, lat, lng));
+
+            // Disable textfield and submit buttons.
             nameInput.setEnabled(false);
             submitScore.setEnabled(false);
+
+            // Pop a success toast.
             Toast toastSavedSuccess = Toast.makeText(getApplicationContext(), "Record Saved!", Toast.LENGTH_LONG);
             toastSavedSuccess.show();
         } catch(Exception e) {
+
             Log.d("DB", e.toString());
             Toast toastFailedSave = Toast.makeText(getApplicationContext(), "Save failed!", Toast.LENGTH_LONG);
             toastFailedSave.show();
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private void getLocationAndSaveToDatabase() {
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(FinishGameActivity.this, (OnSuccessListener<Location>) location -> {
-            if (location != null) {
-                loc = location;
-            }
-            saveScoreToDatabase();
-        });
+    /* ==========================================================================================================================
+    *   Check for GPS access permission.
+    *   True = GPS access granted.
+    *   False = No GPS access permission.
+    *  ========================================================================================================================== */
+    private boolean checkGpsPermission() {
+        return (!(ActivityCompat.checkSelfPermission(FinishGameActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(FinishGameActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED));
     }
 
+    /* ==========================================================================================================================
+    *   Get GPS location.
+    *   Checks if permission is granted, and fetches last known location.
+    *   Blocking task.
+    *  ========================================================================================================================== */
+    private void getLocationAndSaveToDatabase() {
+        try {
+            if(checkGpsPermission()) {
+                mFusedLocationClient.getLastLocation().addOnCompleteListener(FinishGameActivity.this, (OnCompleteListener<Location>) location -> {
+                    if (location.getResult() != null) {
+                        loc = location.getResult();
+                    }
+                    saveScoreToDatabase();
+                });
+
+            }
+        } catch(Exception e) {}
+    }
+
+    /* ==========================================================================================================================
+    *   Callback method for permission result events.
+    *   If permission is granted, fetches location, and save to database.
+    *   If permission is NOT granted, save to database without fetching location.
+    *  ========================================================================================================================== */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        try {
+            if (requestCode == MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
+                Log.d("LOCATION", "Request Response");
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getLocationAndSaveToDatabase();
+                }
+                else
+                    saveScoreToDatabase();
+            }
+        } catch (Exception e) {}
+    }
 
 }
