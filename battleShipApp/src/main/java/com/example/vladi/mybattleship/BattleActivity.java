@@ -5,6 +5,10 @@ package com.example.vladi.mybattleship;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,7 +22,7 @@ import android.widget.Toast;
 
 import com.example.vladi.mybattleship.Logic.Game;
 
-public class BattleActivity extends AppCompatActivity {
+public class BattleActivity extends AppCompatActivity implements SensorEventListener {
     private final static String FILE = "appInfo";
     private static final String TAG = "BattleActivity";
     private final static String DIFFICULTY = "difficulty";
@@ -31,6 +35,10 @@ public class BattleActivity extends AppCompatActivity {
     private Button atkBoardBtn;
     private TextView statusText;
     private Toast toast;
+    private SensorManager sensorManager;
+    private Sensor sensor;
+    private int tiltCounter = 0;
+    private boolean tiltedRigth = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,8 +49,12 @@ public class BattleActivity extends AppCompatActivity {
         setGame();
         setToggleBtns();
         setGridEvent();
+        initSensorService();
     }
-
+    private void initSensorService(){
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    }
     private void getDifficulty() {
         SharedPreferences sp = getSharedPreferences(FILE, Context.MODE_PRIVATE);
         mDifficulty = sp.getString(DIFFICULTY,"");
@@ -123,10 +135,6 @@ public class BattleActivity extends AppCompatActivity {
         });
     }
     private void endGame(){
-        //go to end screen
-        //pass winner?
-        //score
-        //block back key
         Intent intent = new Intent(BattleActivity.this,FinishGameActivity.class);
         Bundle params = new Bundle();
         if (mGame.gameStatus()==1)
@@ -147,5 +155,71 @@ public class BattleActivity extends AppCompatActivity {
         String statusMsg = "Player ships: "+ mGame.getPlayerShipsLeft() +
                 " - Enemy ships: "+mGame.getComputerShipsLeft()+"    Moves: " +mGame.getMoves();
         statusText.setText(statusMsg);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //unregister Sensor listener
+        sensorManager.unregisterListener(this);
+    }
+
+    private void moveShips(){
+        Log.d(TAG, "moveShips: ships moved");
+        playerAdapter.notifyDataSetChanged();
+    }
+    
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        float x = event.values[0];
+
+
+        if (x>4){
+            if (!tiltedRigth) {
+                tiltCounter = 0;
+                tiltedRigth = true;
+            }
+            tiltCounter++;
+        }else if (x<-4){
+            if (tiltedRigth) {
+                tiltCounter = 0;
+                tiltedRigth = false;
+            }
+            tiltCounter++;
+        }
+        if (tiltCounter>=25){
+            moveShips();
+            tiltCounter=0;
+        }
+        /*float y = event.values[1];
+        if (Math.abs(x) > Math.abs(y)) {
+            if (x < 0) {
+                Log.d(TAG, "onSensorChanged: You tilt the device right  x = " + x + " y= "+y);
+            }
+            if (x > 0) {
+                Log.d(TAG, "onSensorChanged: You tilt the device left  x = " + x + " y= "+y);
+            }
+        } else {
+            if (y < 0) {
+                Log.d(TAG, "onSensorChanged: You tilt the device up  x = " + x + " y= "+y);
+            }
+            if (y > 0) {
+                Log.d(TAG, "onSensorChanged: You tilt the device down  x = " + x + " y= "+y);
+
+            }
+        }
+        if (x > (-2) && x < (2) && y > (-2) && y < (2)) {
+            Log.d(TAG, "onSensorChanged: Not tilt device  x = " + x + " y= "+y);
+        }*/
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
