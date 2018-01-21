@@ -1,9 +1,16 @@
 package com.example.vladi.mybattleship;
 
 import android.app.Dialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.vladi.mybattleship.DAL.RecordsDatabase;
@@ -25,7 +32,11 @@ import java.util.List;
 public class RecordsActivity extends AppCompatActivity implements RecordsListFragment.OnRecordSelectedFromListListener{
     private static final String TAG = "RecordsActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
-
+    private final static String DIFFICULTY = "difficulty";
+    private final static String FILE = "appInfo";
+    //private Spinner mSpinner;
+    //private ArrayAdapter<CharSequence> adapter;
+    private String mDifficulty;
     private GoogleMap gMap;
     public static List<Record> records;
     private RecordsDatabase recordsDB;
@@ -41,12 +52,48 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_records);
-
+        getDifficulty();
         initRecords();
+        //setSpinner();
         if(isServicesOK()){
            initMap();
         }
     }
+
+    /*private void setSpinner(){
+        mSpinner = (Spinner) findViewById(R.id.recordsSpinner);
+        adapter = ArrayAdapter.createFromResource(this,
+                R.array.difficulty_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinner.setAdapter(adapter);
+
+        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // Fetch record list from DB
+                try {
+                    //records = recordsDB.recordsDao().getAllRecords();
+                    records = recordsDB.recordsDao().getAllRecords(mSpinner.getSelectedItem().toString());
+                } catch(Exception e) {}
+
+                // Sort.
+                Collections.sort(records);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Fetch record list from DB
+                try {
+                    //records = recordsDB.recordsDao().getAllRecords();
+                    records = recordsDB.recordsDao().getAllRecords("Beginner");
+                } catch(Exception e) {}
+
+                // Sort.
+                Collections.sort(records);
+            }
+
+        });
+    }*/
 
     /* ==========================================================================================================================
     *   Record list getter.
@@ -76,7 +123,8 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
 
         // Fetch record list from DB
         try {
-            records = recordsDB.recordsDao().getAllRecords();
+            //records = recordsDB.recordsDao().getAllRecords();
+            records = recordsDB.recordsDao().getAllRecords("Beginner");
         } catch(Exception e) {}
 
         // Sort.
@@ -161,5 +209,11 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
         for(Record r : records) {
             markers.add(gMap.addMarker(new MarkerOptions().position(new LatLng(r.getLat(), r.getLang())).visible(true).title("Name: " + r.getName()).snippet("Score: " + r.getScore())));
         }
+    }
+
+    private void getDifficulty() {
+        SharedPreferences sp = getSharedPreferences(FILE, Context.MODE_PRIVATE);
+        mDifficulty = sp.getString(DIFFICULTY,"");
+        Log.d(TAG, "getDifficulty: value is : " +mDifficulty);
     }
 }

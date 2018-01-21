@@ -177,19 +177,19 @@ public class BattleActivity extends AppCompatActivity implements SensorEventList
     @Override
     public void onSensorChanged(SensorEvent event) {
         float x = event.values[0];
-
-
         if (x>4){
             if (!tiltedRigth) {
                 tiltCounter = 0;
                 tiltedRigth = true;
             }
+            mGame.playerPenelty(false);
             tiltCounter++;
         }else if (x<-4){
             if (tiltedRigth) {
                 tiltCounter = 0;
                 tiltedRigth = false;
             }
+            mGame.playerPenelty(true);
             tiltCounter++;
         }
         if (tiltCounter>=25){

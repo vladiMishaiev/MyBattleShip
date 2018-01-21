@@ -151,4 +151,17 @@ public class Game {
 	public void setMoves(int score) {
 		this.moves = score;
 	}
+
+	public void playerPenelty(boolean isLeftSide){
+		//iterate through left / rigth edges and hit ships
+		for (int i = 0 ; i< playerBoard.getRows();i++){
+			if (!isLeftSide)
+				if (!playerBoard.getTile(i,playerBoard.getCols()-1).isEmptySlot())
+					playerBoard.hit(i,playerBoard.getCols()-1);
+			else
+				if (!playerBoard.getTile(i,0).isEmptySlot())
+					playerBoard.hit(i,0);
+		}
+	}
+
 }
