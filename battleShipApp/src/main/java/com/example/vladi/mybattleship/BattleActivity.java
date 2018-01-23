@@ -14,9 +14,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,8 +35,8 @@ public class BattleActivity extends AppCompatActivity implements SensorEventList
     private GridView mGrid;
     private String mDifficulty;
     private Game mGame;
-    private TileAdapter playerAdapter;
-    private TileAdapter computerAdapter;
+    private MyTileAdapter playerAdapter;
+    private MyTileAdapter computerAdapter;
     private Button dfnBoardBtn;
     private Button atkBoardBtn;
     private TextView statusText;
@@ -39,6 +45,9 @@ public class BattleActivity extends AppCompatActivity implements SensorEventList
     private Sensor sensor;
     private int tiltCounter = 0;
     private boolean tiltedRigth = true;
+
+    private AlphaAnimation fade;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +59,7 @@ public class BattleActivity extends AppCompatActivity implements SensorEventList
         setToggleBtns();
         setGridEvent();
         initSensorService();
+        animationSetup();
     }
     private void initSensorService(){
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -66,8 +76,8 @@ public class BattleActivity extends AppCompatActivity implements SensorEventList
         updateStatus();
         //mGame.getPlayerBoard().getTile(1,1).setEmptySlot(false);
         mGrid = (GridView) findViewById(R.id.boardGridView);
-        playerAdapter = new TileAdapter(this,mGame.getPlayerBoard());
-        computerAdapter = new TileAdapter(this,mGame.getComputerBoard());;
+        playerAdapter = new MyTileAdapter(this,mGame.getPlayerBoard());
+        computerAdapter = new MyTileAdapter(this,mGame.getComputerBoard());;
         mGrid.setAdapter(playerAdapter);
         mGrid.setNumColumns(mGame.getPlayerBoard().getCols());
     }
@@ -99,7 +109,30 @@ public class BattleActivity extends AppCompatActivity implements SensorEventList
                     int col = position % mGame.getComputerBoard().getCols();
                     if (mGame.playerPlay(row, col)) {
                         Log.d(TAG, "onItemClick: player played");
-                        ((TileAdapter) mGrid.getAdapter()).notifyDataSetChanged();
+                        if(mGame.getComputerBoard().getTile(row, col).isHit() && mGame.getComputerBoard().getTile(row, col).isEmptySlot()) {
+                            ((ImageView)view).setImageResource(R.drawable.miss);
+                        }
+                        else if(mGame.getComputerBoard().getTile(row, col).isHit() && !mGame.getComputerBoard().getTile(row, col).isEmptySlot()) {
+
+                            fade.setAnimationListener(new Animation.AnimationListener() {
+                                @Override
+                                public void onAnimationStart(Animation animation) {
+                                    ((ImageView)view).setImageResource(R.drawable.explosion35x35);
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animation animation) {
+                                    ((ImageView)view).setImageResource(R.drawable.red);
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animation animation) {
+
+                                }
+                            });
+                            ((ImageView)view).startAnimation(fade);
+                        }
+                        //((MyTileAdapter) mGrid.getAdapter()).notifyDataSetChanged();
                         //if ship destroyed show toast msg
                         if (mGame.getComputerBoard().getTile(row,col).getShip()!= null &&
                                 mGame.getComputerBoard().getTile(row,col).getShip().isDestroyed()) {
@@ -221,5 +254,12 @@ public class BattleActivity extends AppCompatActivity implements SensorEventList
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+
+    private void animationSetup() {
+        fade = new AlphaAnimation(0, 1);
+        fade.setDuration(500);
+        fade.setRepeatCount(1);
+        fade.setRepeatMode(Animation.REVERSE);
     }
 }
