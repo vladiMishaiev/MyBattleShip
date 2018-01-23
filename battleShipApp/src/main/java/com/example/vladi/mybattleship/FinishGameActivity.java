@@ -29,6 +29,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 public class FinishGameActivity extends AppCompatActivity {
+    private final static String FILE = "appInfo";
+    private final static String DIFFICULTY = "difficulty";
     private static final String TAG = "FinishGameActivity";
     private ImageView outcomeImg;
     private double score;
@@ -39,12 +41,13 @@ public class FinishGameActivity extends AppCompatActivity {
     private FusedLocationProviderClient mFusedLocationClient;
     private Location loc = null;
     private int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 999;
-
+    private String mDifficulty;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         setContentView(R.layout.activity_finish_game);
+        getDifficulty();
         getScore();
         setImage();
         setReplayBtn();
@@ -89,9 +92,16 @@ public class FinishGameActivity extends AppCompatActivity {
     private void setSubmitBox() {
         //set submit box visability
         LinearLayout recordBox = (LinearLayout)findViewById(R.id.submitRecordBox);
-        //add load lowest record from db and check
-        if (score!=0)
+        RecordsDatabase db = RecordsDatabase.getInstance(getApplicationContext());
+        // Save new record to database,
+        double currentMinScore = db.recordsDao().getMinScoreByDifficulty(mDifficulty);
+        int numOfRecords = db.recordsDao().getAllRecords(mDifficulty).size();
+        if (score!=0 && (numOfRecords<10 || score>currentMinScore)) {
             recordBox.setVisibility(LinearLayout.VISIBLE);
+            if (numOfRecords==10){
+                db.recordsDao().deleteRecordByScore(currentMinScore,mDifficulty);
+            }
+        }
         else
             recordBox.setVisibility(LinearLayout.GONE);
 
@@ -165,7 +175,9 @@ public class FinishGameActivity extends AppCompatActivity {
             }
 
             // Save new record to database,
-            db.recordsDao().createRecord(new Record(nameInput.getText().toString(), score, lat, lng));
+            Record newRecord = new Record(nameInput.getText().toString(), score, lat, lng);
+            newRecord.setDifficulty(mDifficulty);
+            db.recordsDao().createRecord(newRecord);
 
             // Disable textfield and submit buttons.
             nameInput.setEnabled(false);
@@ -230,4 +242,9 @@ public class FinishGameActivity extends AppCompatActivity {
         } catch (Exception e) {}
     }
 
+    private void getDifficulty() {
+        SharedPreferences sp = getSharedPreferences(FILE, Context.MODE_PRIVATE);
+        mDifficulty = sp.getString(DIFFICULTY,"");
+        Log.d(TAG, "getDifficulty: value is : " +mDifficulty);
+    }
 }

@@ -29,6 +29,12 @@ public interface RecordsDao {
     @Delete
     public void deleteRecord (Record record);
 
+    @Query("DELETE FROM records WHERE _score LIKE :score AND _difficulty LIKE :difficulty")
+    public void deleteRecordByScore (double score,String difficulty);
+
+    @Query("SELECT * FROM records WHERE _difficulty LIKE :difficulty")
+    public List<Record> getAllRecords (String difficulty);
+
     @Query("SELECT * FROM records")
     public List<Record> getAllRecords ();
 
