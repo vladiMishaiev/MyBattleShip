@@ -19,8 +19,25 @@ import java.util.List;
 
 public class RecordsListFragment extends Fragment {
     private OnRecordSelectedFromListListener mListener;
+    private RecordListAdapter adapter;
     private List<Record> records;
     private ListView recordsView;
+
+    public List<Record> getRecords() {
+        return records;
+    }
+
+    public void setRecords(List<Record> records) {
+        this.records = records;
+    }
+
+    public RecordListAdapter getAdapter() {
+        return adapter;
+    }
+
+    public void setAdapter(RecordListAdapter adapter) {
+        this.adapter = adapter;
+    }
 
     public interface OnRecordSelectedFromListListener {
         void onRecordSelectionTable(int recordPos);
@@ -53,7 +70,7 @@ public class RecordsListFragment extends Fragment {
         recordsView = (ListView)getView().findViewById(R.id.recordsList);
         recordsView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         recordsView.setSelector(android.R.color.holo_blue_light);
-        RecordListAdapter adapter = new RecordListAdapter(getActivity(), R.layout.adapter_record_view_layout, records);
+        adapter = new RecordListAdapter(getActivity(), R.layout.adapter_record_view_layout, records);
         recordsView.setAdapter(adapter);
         recordsView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

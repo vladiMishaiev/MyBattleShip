@@ -34,8 +34,8 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
     private static final int ERROR_DIALOG_REQUEST = 9001;
     private final static String DIFFICULTY = "difficulty";
     private final static String FILE = "appInfo";
-    //private Spinner mSpinner;
-    //private ArrayAdapter<CharSequence> adapter;
+    private Spinner mSpinner;
+    private ArrayAdapter<CharSequence> adapter;
     private String mDifficulty;
     private GoogleMap gMap;
     public static List<Record> records;
@@ -54,16 +54,15 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
         setContentView(R.layout.activity_records);
         getDifficulty();
         initRecords();
-        //setSpinner();
+        setSpinner();
         if(isServicesOK()){
            initMap();
         }
     }
 
-    /*private void setSpinner(){
-        mSpinner = (Spinner) findViewById(R.id.recordsSpinner);
-        adapter = ArrayAdapter.createFromResource(this,
-                R.array.difficulty_array, android.R.layout.simple_spinner_item);
+    private void setSpinner(){
+        mSpinner = (Spinner) findViewById(R.id.spinner);
+        adapter = ArrayAdapter.createFromResource(this, R.array.difficulty_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setAdapter(adapter);
 
@@ -72,12 +71,13 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 // Fetch record list from DB
                 try {
-                    //records = recordsDB.recordsDao().getAllRecords();
                     records = recordsDB.recordsDao().getAllRecords(mSpinner.getSelectedItem().toString());
+                    Collections.sort(records);
+                    RecordsListFragment rFragment = (RecordsListFragment) getFragmentManager().findFragmentById(R.id.headlines_fragment);
+                    rFragment.setRecords(records);
+                    rFragment.getAdapter().clear();
+                    rFragment.getAdapter().addAll(records);
                 } catch(Exception e) {}
-
-                // Sort.
-                Collections.sort(records);
             }
 
             @Override
@@ -93,7 +93,7 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
             }
 
         });
-    }*/
+    }
 
     /* ==========================================================================================================================
     *   Record list getter.
@@ -123,7 +123,6 @@ public class RecordsActivity extends AppCompatActivity implements RecordsListFra
 
         // Fetch record list from DB
         try {
-            //records = recordsDB.recordsDao().getAllRecords();
             records = recordsDB.recordsDao().getAllRecords("Beginner");
         } catch(Exception e) {}
 

@@ -11,40 +11,40 @@
         android:id="@+id/headlines_fragment"
         android:name="com.example.vladi.mybattleship.RecordsListFragment"
         android:layout_width="0dp"
-        android:layout_height="155dp"
+        android:layout_height="199dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_weight="1"
         app:layout_constraintBottom_toTopOf="@+id/map"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.984" />
 
     <fragment xmlns:map="http://schemas.android.com/apk/res-auto"
-        class="com.google.android.gms.maps.MapFragment"
         android:id="@+id/map"
+        class="com.google.android.gms.maps.MapFragment"
         android:layout_width="375dp"
-        android:layout_height="344dp"
+        android:layout_height="233dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         map:layout_constraintBottom_toBottomOf="parent"
         map:layout_constraintEnd_toEndOf="parent"
-        map:layout_constraintStart_toStartOf="parent"
-        />
+        map:layout_constraintStart_toStartOf="parent" />
 
-    <!--<fragment xmlns:android="http://schemas.android.com/apk/res/android"-->
-        <!--xmlns:map="http://schemas.android.com/apk/res-auto"-->
-        <!--xmlns:tools="http://schemas.android.com/tools"-->
-        <!--android:id="@+id/map"-->
-        <!--android:name="com.example.vladi.mybattleship.MapFragment"-->
-        <!--android:layout_width="375dp"-->
-        <!--android:layout_height="344dp"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginEnd="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--map:layout_constraintBottom_toBottomOf="parent"-->
-        <!--map:layout_constraintEnd_toEndOf="parent"-->
-        <!--map:layout_constraintStart_toStartOf="parent" />-->
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="368dp"
+        android:layout_height="45dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/headlines_fragment"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>

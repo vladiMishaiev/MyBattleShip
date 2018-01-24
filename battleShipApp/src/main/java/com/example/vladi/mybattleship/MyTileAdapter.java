@@ -38,6 +38,8 @@ public class MyTileAdapter extends BaseAdapter {
         return board.getTile(position / board.getCols(), position % board.getCols());
     }
 
+    
+
     @Override
     public long getItemId(int i) {
         return 0;
